@@ -1,11 +1,12 @@
 import * as THREE from "three";
-import { Vector3 } from "three";
+import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import Orbit from "./Orbit";
 
 export default class SolarSystem {
   private canvas: HTMLCanvasElement;
   private scene: THREE.Scene;
   private camera: THREE.PerspectiveCamera;
+  private controls: OrbitControls;
   private renderer: THREE.WebGLRenderer;
   private ambientLight: THREE.AmbientLight;
   private planetGroup: THREE.Group;
@@ -60,6 +61,8 @@ export default class SolarSystem {
       canvas: this.canvas,
     });
 
+    this.controls = new OrbitControls(this.camera, this.canvas);
+
     this.ambientLight = new THREE.AmbientLight(0xffffff, 0.9);
     this.scene.add(this.ambientLight);
 
@@ -112,9 +115,10 @@ export default class SolarSystem {
       if (planetName === "mercury") {
         this.camera.position
           .copy(planet.position)
-          .add(new Vector3(0, props.radius * 4, 0));
+          .add(new THREE.Vector3(0, props.radius * 4, 0));
         this.camera.lookAt(planet.position);
-        this.camera.updateProjectionMatrix();
+        this.controls.target.copy(planet.position);
+        this.controls.update();
       }
     });
 
