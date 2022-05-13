@@ -1,4 +1,5 @@
 import { FC } from "react";
+import styled from "styled-components";
 import capitalize from "../helpers/capitalize";
 
 interface IProps {
@@ -6,7 +7,12 @@ interface IProps {
   handleClick: React.MouseEventHandler<HTMLLIElement>;
   handleMouseEnter: React.MouseEventHandler<HTMLLIElement>;
   handleMouseLeave: React.MouseEventHandler<HTMLLIElement>;
+  isActive: boolean;
 }
+
+const ListItem = styled.li<{ $isActive: boolean }>`
+  color: ${(p) => (p.$isActive ? "#30e3ca" : "#ffffff")};
+`;
 
 const PlanetListItem: FC<IProps> = (props) => {
   const {
@@ -14,15 +20,17 @@ const PlanetListItem: FC<IProps> = (props) => {
     handleClick: onClick,
     handleMouseEnter,
     handleMouseLeave,
+    isActive,
   } = props;
   return (
-    <li
+    <ListItem
       onClick={onClick}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
+      $isActive={isActive}
     >
       {capitalize(planetName)}
-    </li>
+    </ListItem>
   );
 };
 

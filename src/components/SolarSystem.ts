@@ -198,9 +198,10 @@ export default class SolarSystem {
   public focusPlanet(planetName: string) {
     const planet = this.planets.find((planet) => planet.name === planetName);
     this.focussedPlanet = planet;
+    return planet;
   }
 
-  public unfocus() {
+  public unFocus() {
     this.focussedPlanet = undefined;
 
     this.camera.position.set(0, 8_000_000, 8_000_000);
