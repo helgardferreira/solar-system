@@ -3,6 +3,7 @@ import SolarSystem from "./components/SolarSystem";
 
 import Box from "./components/Box";
 import List from "./components/List";
+import PlanetListItem from "./components/PlanetListItem";
 
 interface IAppState {
   solarSystem?: SolarSystem;
@@ -48,14 +49,19 @@ export default class App extends Component<any, IAppState> {
         >
           <List color="white">
             {this.state.solarSystem &&
-              Array.from(this.state.solarSystem.planets.keys()).map(
+              Array.from(this.state.solarSystem.planetMap.keys()).map(
                 (planetName) => (
-                  <li
+                  <PlanetListItem
                     key={planetName}
-                    onClick={() => this.state.solarSystem?.goTo(planetName)}
-                  >
-                    {planetName}
-                  </li>
+                    planetName={planetName}
+                    handleClick={() => this.state.solarSystem?.goTo(planetName)}
+                    handleMouseEnter={() =>
+                      this.state.solarSystem?.setOrbitActive(planetName)
+                    }
+                    handleMouseLeave={() =>
+                      this.state.solarSystem?.setOrbitInactive(planetName)
+                    }
+                  />
                 ),
               )}
           </List>

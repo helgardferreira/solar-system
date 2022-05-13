@@ -38,6 +38,14 @@ export default class Orbit {
     this.name = name;
   }
 
+  public setActive = () => {
+    this.object.material.color.set(0x30e3ca);
+  };
+
+  public setInactive = () => {
+    this.object.material.color.set(0xffffff);
+  };
+
   public dispose = () => {
     this.material.dispose();
     this.geometry.dispose();

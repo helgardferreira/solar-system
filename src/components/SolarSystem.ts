@@ -12,11 +12,12 @@ export default class SolarSystem {
   private ambientLight: THREE.AmbientLight;
   private planetGroup: THREE.Group;
   private orbitGroup: THREE.Group;
+  private planets: Planet[] = [];
 
   private static instance: SolarSystem;
 
   // Unit of measurement is Megameters
-  public planets = new Map([
+  public planetMap = new Map([
     [
       "mercury",
       {
@@ -157,6 +158,22 @@ export default class SolarSystem {
     };
   };
 
+  public findOrbit = (planetName: string): Orbit | undefined => {
+    const planet = this.planets.find((planet) => planet.name === planetName);
+
+    if (planet) {
+      return planet.orbit;
+    }
+  };
+
+  public setOrbitActive = (planetName: string) => {
+    this.findOrbit(planetName)?.setActive();
+  };
+
+  public setOrbitInactive = (planetName: string) => {
+    this.findOrbit(planetName)?.setInactive();
+  };
+
   public goTo = (planetName: string) => {
     const planet = this.planetGroup.children.find(
       (planet) => planet.name === planetName,
@@ -167,7 +184,7 @@ export default class SolarSystem {
         .copy(planet.position)
         .add(
           new THREE.Vector3(
-            (this.planets.get(planetName)?.radius ?? 1) * 5,
+            (this.planetMap.get(planetName)?.radius ?? 1) * 5,
             0,
             0,
           ),
@@ -181,7 +198,7 @@ export default class SolarSystem {
 
   private initScene = async () => {
     const textures = await this.loadTextures();
-    this.planets.forEach((props, planetName) => {
+    this.planetMap.forEach((props, planetName) => {
       const orbit = new Orbit(props.distanceFromSun, 90, planetName);
       this.orbitGroup.add(orbit.object);
 
@@ -192,6 +209,7 @@ export default class SolarSystem {
         textures[planetName as keyof typeof textures],
       );
 
+      this.planets.push(planet);
       this.planetGroup.add(planet.object);
     });
 
