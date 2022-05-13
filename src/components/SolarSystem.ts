@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import Orbit from "./Orbit";
-import Planet from "./Planet";
+import Planet, { IPlanetProps } from "./Planet";
 
 export default class SolarSystem {
   private canvas: HTMLCanvasElement;
@@ -18,12 +18,13 @@ export default class SolarSystem {
   private static instance: SolarSystem;
 
   // Unit of measurement is Megameters
-  public planetMap = new Map([
+  public planetMap = new Map<string, IPlanetProps>([
     [
       "mercury",
       {
         distanceFromSun: 58000,
         radius: 2.44 * 3000,
+        orbitalVelocity: 47.4,
       },
     ],
     [
@@ -31,6 +32,7 @@ export default class SolarSystem {
       {
         distanceFromSun: 108200,
         radius: 6.052 * 3000,
+        orbitalVelocity: 35.0,
       },
     ],
     [
@@ -38,6 +40,7 @@ export default class SolarSystem {
       {
         distanceFromSun: 149600,
         radius: 6.378 * 3000,
+        orbitalVelocity: 29.8,
       },
     ],
     [
@@ -45,6 +48,7 @@ export default class SolarSystem {
       {
         distanceFromSun: 228000,
         radius: 3.396 * 3000,
+        orbitalVelocity: 24.1,
       },
     ],
     [
@@ -52,6 +56,7 @@ export default class SolarSystem {
       {
         distanceFromSun: 778500,
         radius: 71.492 * 3000,
+        orbitalVelocity: 13.1,
       },
     ],
     [
@@ -59,6 +64,7 @@ export default class SolarSystem {
       {
         distanceFromSun: 1432000,
         radius: 60.268 * 3000,
+        orbitalVelocity: 9.7,
       },
     ],
     [
@@ -66,6 +72,7 @@ export default class SolarSystem {
       {
         distanceFromSun: 2867000,
         radius: 25.559 * 3000,
+        orbitalVelocity: 6.8,
       },
     ],
     [
@@ -73,6 +80,7 @@ export default class SolarSystem {
       {
         distanceFromSun: 4515000,
         radius: 24.764 * 3000,
+        orbitalVelocity: 5.4,
       },
     ],
   ]);

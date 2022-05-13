@@ -1,16 +1,22 @@
 import * as THREE from "three";
 import Orbit from "./Orbit";
 
+export interface IPlanetProps {
+  distanceFromSun: number;
+  radius: number;
+  orbitalVelocity: number;
+}
+
 export default class Planet {
   public name: string;
-  public props: any;
+  public props: IPlanetProps;
   public orbit: Orbit;
   public object: THREE.Mesh<THREE.SphereGeometry, THREE.MeshStandardMaterial>;
   private material: THREE.MeshStandardMaterial;
   private geometry: THREE.SphereGeometry;
 
   constructor(
-    props: any,
+    props: IPlanetProps,
     planetName: string,
     orbit: Orbit,
     texture: THREE.Texture,
@@ -31,7 +37,7 @@ export default class Planet {
   }
 
   public animate = (elapsedTime: number) => {
-    const moveFactor = elapsedTime % 1;
+    const moveFactor = ((elapsedTime / 100) * this.props.orbitalVelocity) % 1;
     this.object.position.copy(this.orbit.curve.getPoint(moveFactor));
   };
 

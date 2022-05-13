@@ -5,6 +5,7 @@ export default class Orbit {
   public name: string;
   public curve: THREE.CatmullRomCurve3;
   public object: THREE.Line<THREE.TubeGeometry, THREE.LineBasicMaterial>;
+  public circumference: number;
   private geometry: THREE.TubeGeometry;
   private material: THREE.LineBasicMaterial;
 
@@ -21,6 +22,8 @@ export default class Orbit {
       false, // aClockwise
       0, // aRotation
     );
+
+    this.circumference = 2 * Math.PI * this.radius;
 
     this.curve = new THREE.CatmullRomCurve3(
       orbitLine
