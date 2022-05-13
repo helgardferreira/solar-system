@@ -9,7 +9,7 @@ const List = styled.ul<ColorProps | SpaceProps>`
   margin: 0;
   list-style: none;
 
-  li:first-of-type {
+  li:first-child {
     margin-bottom: 1rem;
   }
 
@@ -17,7 +17,7 @@ const List = styled.ul<ColorProps | SpaceProps>`
     cursor: pointer;
   }
 
-  li:not(:first-of-type):not(:last-of-type) {
+  li:not(:first-child):not(:last-child) {
     margin-bottom: 0.2rem;
   }
 `;

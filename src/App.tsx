@@ -6,9 +6,25 @@ import List from "./components/List";
 import PlanetListItem from "./components/PlanetListItem";
 import Planet, { IPlanetProps } from "./components/Planet";
 
+interface INasaImagesPayload {
+  collection: {
+    href: string;
+    items: {
+      data: any;
+      href: string;
+      links: {
+        href: string;
+        rel: string;
+        render: string;
+      }[];
+    }[];
+  };
+}
+
 interface IAppState {
   solarSystem?: SolarSystem;
   focussedPlanet?: Planet;
+  planetImageUrls: string[];
 }
 
 export default class App extends Component<any, IAppState> {
@@ -18,7 +34,9 @@ export default class App extends Component<any, IAppState> {
     super(props);
     this.canvasRef = createRef<HTMLCanvasElement>();
 
-    this.state = {};
+    this.state = {
+      planetImageUrls: [],
+    };
   }
 
   // Using a singleton here to prevent scene from being instantiating
@@ -37,12 +55,28 @@ export default class App extends Component<any, IAppState> {
   handleFocusPlanet = (planetName: string) => {
     this.setState({
       focussedPlanet: this.state.solarSystem?.focusPlanet(planetName),
+      planetImageUrls: [],
     });
+    this.fetchPlanetImages(planetName);
   };
 
   handleUnFocusPlanet = () => {
     this.state.solarSystem?.unFocus();
     this.setState({ focussedPlanet: undefined });
+  };
+
+  fetchPlanetImages = async (planetName: string) => {
+    const data: INasaImagesPayload = await (
+      await fetch(
+        `https://images-api.nasa.gov/search?q=${planetName}&media_type=image`,
+      )
+    ).json();
+
+    const urls = data.collection.items
+      .slice(0, 10)
+      .map((item) => item.links[0].href);
+
+    this.setState({ planetImageUrls: urls });
   };
 
   render = (): ReactNode => {
@@ -79,11 +113,13 @@ export default class App extends Component<any, IAppState> {
 
           {this.state.focussedPlanet && (
             <Box
-              padding={12}
+              padding="12px 32px 12px 12px"
               backgroundColor="#1B262C"
               borderRadius={8}
               width="fit-content"
               mt="8px"
+              maxHeight="calc(100vh - 300px)"
+              overflowY="auto"
             >
               <List color="#ffffff">
                 <li onClick={this.handleUnFocusPlanet}>Close</li>
@@ -97,6 +133,12 @@ export default class App extends Component<any, IAppState> {
                       ]
                     }
                   </li>
+                ))}
+
+                {this.state.planetImageUrls.map((url) => (
+                  <Box borderRadius={4} width={400} overflow="hidden">
+                    <img width={400} key={url} src={url} alt="" />
+                  </Box>
                 ))}
               </List>
             </Box>
