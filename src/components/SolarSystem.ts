@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import { Vector3 } from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import Orbit from "./Orbit";
 import Planet from "./Planet";
@@ -13,7 +14,7 @@ export default class SolarSystem {
   private planetGroup: THREE.Group;
   private orbitGroup: THREE.Group;
 
-  private static isInstantiated: boolean = false;
+  private static instance: SolarSystem;
 
   // Unit of measurement is Megameters
   public planets = new Map([
@@ -38,10 +39,11 @@ export default class SolarSystem {
   // causing multiple calls for componentDidMount and useEffect during
   // development
   public static create = (canvas: HTMLCanvasElement) => {
-    if (!this.isInstantiated) {
-      this.isInstantiated = true;
-      return new SolarSystem(canvas);
+    if (!this.instance) {
+      this.instance = new SolarSystem(canvas);
     }
+
+    return this.instance;
   };
 
   constructor(canvas: HTMLCanvasElement) {
@@ -53,9 +55,9 @@ export default class SolarSystem {
       45,
       window.innerWidth / window.innerHeight,
       0.5,
-      1000000,
+      500_000_000,
     );
-    this.camera.position.set(0, 500_000, 0);
+    this.camera.position.set(0, 250_000, 250_000);
     this.camera.lookAt(0, 0, 0);
     this.renderer = new THREE.WebGLRenderer({
       antialias: true,
@@ -92,6 +94,28 @@ export default class SolarSystem {
     };
   };
 
+  public goTo = (planetName: string) => {
+    const planet = this.planetGroup.children.find(
+      (planet) => planet.name === planetName,
+    );
+
+    if (planet) {
+      this.camera.position
+        .copy(planet.position)
+        .add(
+          new THREE.Vector3(
+            (this.planets.get(planetName)?.radius ?? 1) * 5,
+            0,
+            0,
+          ),
+        );
+      this.camera.lookAt(planet.position);
+      this.camera.updateProjectionMatrix();
+      this.controls.target.copy(planet.position);
+      this.controls.update();
+    }
+  };
+
   private initScene = async () => {
     const textures = await this.loadTextures();
     this.planets.forEach((props, planetName) => {
@@ -106,16 +130,6 @@ export default class SolarSystem {
       );
 
       this.planetGroup.add(planet.object);
-
-      // TODO: replace with camera controls
-      if (planetName === "mercury") {
-        this.camera.position
-          .copy(planet.object.position)
-          .add(new THREE.Vector3(0, props.radius * 4, 0));
-        this.camera.lookAt(planet.object.position);
-        this.controls.target.copy(planet.object.position);
-        this.controls.update();
-      }
     });
 
     this.scene.add(this.planetGroup);
@@ -141,6 +155,7 @@ export default class SolarSystem {
   }
 
   private renderScene = () => {
+    this.controls.update();
     this.renderer.render(this.scene, this.camera);
     requestAnimationFrame(this.renderScene);
   };
