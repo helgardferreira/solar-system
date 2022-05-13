@@ -24,7 +24,7 @@ interface INasaImagesPayload {
 interface IAppState {
   solarSystem?: SolarSystem;
   focussedPlanet?: Planet;
-  planetImageUrls: string[];
+  planetImages: Map<string, string[]>;
 }
 
 export default class App extends Component<any, IAppState> {
@@ -35,7 +35,7 @@ export default class App extends Component<any, IAppState> {
     this.canvasRef = createRef<HTMLCanvasElement>();
 
     this.state = {
-      planetImageUrls: [],
+      planetImages: new Map(),
     };
   }
 
@@ -55,7 +55,6 @@ export default class App extends Component<any, IAppState> {
   handleFocusPlanet = (planetName: string) => {
     this.setState({
       focussedPlanet: this.state.solarSystem?.focusPlanet(planetName),
-      planetImageUrls: [],
     });
     this.fetchPlanetImages(planetName);
   };
@@ -66,17 +65,24 @@ export default class App extends Component<any, IAppState> {
   };
 
   fetchPlanetImages = async (planetName: string) => {
-    const data: INasaImagesPayload = await (
-      await fetch(
-        `https://images-api.nasa.gov/search?q=${planetName}&media_type=image`,
-      )
-    ).json();
+    if (!this.state.planetImages.get(planetName)) {
+      const data: INasaImagesPayload = await (
+        await fetch(
+          `https://images-api.nasa.gov/search?q=${planetName}&media_type=image`,
+        )
+      ).json();
 
-    const urls = data.collection.items
-      .slice(0, 10)
-      .map((item) => item.links[0].href);
+      const urls = data.collection.items
+        .slice(0, 10)
+        .map((item) => item.links[0].href);
 
-    this.setState({ planetImageUrls: urls });
+      this.setState({
+        planetImages: new Map([
+          ...this.state.planetImages.entries(),
+          [planetName, urls],
+        ]),
+      });
+    }
   };
 
   render = (): ReactNode => {
@@ -135,11 +141,13 @@ export default class App extends Component<any, IAppState> {
                   </li>
                 ))}
 
-                {this.state.planetImageUrls.map((url) => (
-                  <Box borderRadius={4} width={400} overflow="hidden">
-                    <img width={400} key={url} src={url} alt="" />
-                  </Box>
-                ))}
+                {this.state.planetImages
+                  .get(this.state.focussedPlanet.name)
+                  ?.map((url) => (
+                    <Box borderRadius={4} width={400} overflow="hidden">
+                      <img width={400} key={url} src={url} alt="" />
+                    </Box>
+                  ))}
               </List>
             </Box>
           )}
