@@ -1,5 +1,4 @@
 import * as THREE from "three";
-import { Vector3 } from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import Orbit from "./Orbit";
 import Planet from "./Planet";
@@ -32,6 +31,48 @@ export default class SolarSystem {
         radius: 6.052,
       },
     ],
+    [
+      "earth",
+      {
+        distanceFromSun: 149600,
+        radius: 6.378,
+      },
+    ],
+    [
+      "mars",
+      {
+        distanceFromSun: 228000,
+        radius: 3.396,
+      },
+    ],
+    [
+      "jupiter",
+      {
+        distanceFromSun: 778500,
+        radius: 71.492,
+      },
+    ],
+    [
+      "saturn",
+      {
+        distanceFromSun: 1432000,
+        radius: 60.268,
+      },
+    ],
+    [
+      "uranus",
+      {
+        distanceFromSun: 2867000,
+        radius: 25.559,
+      },
+    ],
+    [
+      "neptune",
+      {
+        distanceFromSun: 4515000,
+        radius: 24.764,
+      },
+    ],
   ]);
 
   // Using a singleton here to prevent scene from being instantiating
@@ -55,9 +96,9 @@ export default class SolarSystem {
       45,
       window.innerWidth / window.innerHeight,
       0.5,
-      500_000_000,
+      5_000_000_000,
     );
-    this.camera.position.set(0, 250_000, 250_000);
+    this.camera.position.set(0, 8_000_000, 8_000_000);
     this.camera.lookAt(0, 0, 0);
     this.renderer = new THREE.WebGLRenderer({
       antialias: true,
@@ -90,6 +131,28 @@ export default class SolarSystem {
       ),
       venus: textureLoader.load(
         await import("../textures/venus.jpeg").then(({ default: url }) => url),
+      ),
+      earth: textureLoader.load(
+        await import("../textures/earth.jpeg").then(({ default: url }) => url),
+      ),
+      mars: textureLoader.load(
+        await import("../textures/mars.jpeg").then(({ default: url }) => url),
+      ),
+      jupiter: textureLoader.load(
+        await import("../textures/jupiter.jpeg").then(
+          ({ default: url }) => url,
+        ),
+      ),
+      saturn: textureLoader.load(
+        await import("../textures/saturn.jpeg").then(({ default: url }) => url),
+      ),
+      uranus: textureLoader.load(
+        await import("../textures/uranus.jpeg").then(({ default: url }) => url),
+      ),
+      neptune: textureLoader.load(
+        await import("../textures/neptune.jpeg").then(
+          ({ default: url }) => url,
+        ),
       ),
     };
   };

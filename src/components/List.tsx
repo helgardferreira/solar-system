@@ -8,6 +8,10 @@ const List = styled.ul<ColorProps | SpaceProps>`
   padding: 0;
   margin: 0;
   list-style: none;
+
+  li {
+    cursor: pointer;
+  }
 `;
 
 export default List;
