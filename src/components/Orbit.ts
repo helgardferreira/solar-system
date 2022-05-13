@@ -1,10 +1,12 @@
 import * as THREE from "three";
 
 export default class Orbit {
-  radius: number;
-  name: string;
-  curve: THREE.CatmullRomCurve3;
-  object: THREE.Line<THREE.TubeGeometry, THREE.LineBasicMaterial>;
+  public radius: number;
+  public name: string;
+  public curve: THREE.CatmullRomCurve3;
+  public object: THREE.Line<THREE.TubeGeometry, THREE.LineBasicMaterial>;
+  private geometry: THREE.TubeGeometry;
+  private material: THREE.LineBasicMaterial;
 
   constructor(orbitRadius: number, segments: number = 90, name: string) {
     this.radius = orbitRadius;
@@ -26,13 +28,18 @@ export default class Orbit {
         .map((point) => new THREE.Vector3(point.x, 0, point.y)),
     );
 
-    this.object = new THREE.Line(
-      new THREE.TubeGeometry(this.curve, segments, 0.01, 90),
-      new THREE.LineBasicMaterial({
-        color: 0xffffff,
-      }),
-    );
+    this.geometry = new THREE.TubeGeometry(this.curve, segments, 0.01, 90);
+    this.material = new THREE.LineBasicMaterial({
+      color: 0xffffff,
+    });
+
+    this.object = new THREE.Line(this.geometry, this.material);
     this.object.name = name;
     this.name = name;
   }
+
+  public dispose = () => {
+    this.material.dispose();
+    this.geometry.dispose();
+  };
 }
