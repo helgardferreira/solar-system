@@ -14,6 +14,7 @@ export default class SolarSystem {
   private planetGroup: THREE.Group;
   private orbitGroup: THREE.Group;
   private planets: Planet[] = [];
+  private focussedPlanet?: Planet;
 
   private static instance: SolarSystem;
 
@@ -25,6 +26,7 @@ export default class SolarSystem {
         distanceFromSun: 58000,
         radius: 2.44 * 3000,
         orbitalVelocity: 47.4,
+        rotationPeriod: 1407.6,
       },
     ],
     [
@@ -33,6 +35,7 @@ export default class SolarSystem {
         distanceFromSun: 108200,
         radius: 6.052 * 3000,
         orbitalVelocity: 35.0,
+        rotationPeriod: -5832.5,
       },
     ],
     [
@@ -41,6 +44,7 @@ export default class SolarSystem {
         distanceFromSun: 149600,
         radius: 6.378 * 3000,
         orbitalVelocity: 29.8,
+        rotationPeriod: 23.9,
       },
     ],
     [
@@ -49,6 +53,7 @@ export default class SolarSystem {
         distanceFromSun: 228000,
         radius: 3.396 * 3000,
         orbitalVelocity: 24.1,
+        rotationPeriod: 24.6,
       },
     ],
     [
@@ -57,6 +62,7 @@ export default class SolarSystem {
         distanceFromSun: 778500,
         radius: 71.492 * 3000,
         orbitalVelocity: 13.1,
+        rotationPeriod: 9.9,
       },
     ],
     [
@@ -65,6 +71,7 @@ export default class SolarSystem {
         distanceFromSun: 1432000,
         radius: 60.268 * 3000,
         orbitalVelocity: 9.7,
+        rotationPeriod: 10.7,
       },
     ],
     [
@@ -73,6 +80,7 @@ export default class SolarSystem {
         distanceFromSun: 2867000,
         radius: 25.559 * 3000,
         orbitalVelocity: 6.8,
+        rotationPeriod: -17.2,
       },
     ],
     [
@@ -81,6 +89,7 @@ export default class SolarSystem {
         distanceFromSun: 4515000,
         radius: 24.764 * 3000,
         orbitalVelocity: 5.4,
+        rotationPeriod: 16.1,
       },
     ],
   ]);
@@ -170,12 +179,12 @@ export default class SolarSystem {
     };
   };
 
-  public findOrbit = (planetName: string): Orbit | undefined => {
-    const planet = this.planets.find((planet) => planet.name === planetName);
+  private findPlanet = (planetName: string): Planet | undefined => {
+    return this.planets.find((planet) => planet.name === planetName);
+  };
 
-    if (planet) {
-      return planet.orbit;
-    }
+  private findOrbit = (planetName: string) => {
+    return this.findPlanet(planetName)?.orbit;
   };
 
   public setOrbitActive = (planetName: string) => {
@@ -186,20 +195,21 @@ export default class SolarSystem {
     this.findOrbit(planetName)?.setInactive();
   };
 
-  public goTo = (planetName: string) => {
-    const planet = this.planetGroup.children.find(
-      (planet) => planet.name === planetName,
-    );
+  public focusPlanet(planetName: string) {
+    const planet = this.planets.find((planet) => planet.name === planetName);
+    this.focussedPlanet = planet;
+  }
 
-    if (planet) {
-      const offset = (this.planetMap.get(planetName)?.radius ?? 1) * 5;
+  private goToPlanet = () => {
+    if (this.focussedPlanet) {
+      const offset = (this.focussedPlanet.props.radius ?? 1) * 5;
       this.camera.position
-        .copy(planet.position)
+        .copy(this.focussedPlanet.object.position)
         .add(new THREE.Vector3(offset, offset, offset));
-      this.camera.lookAt(planet.position);
-      this.camera.updateProjectionMatrix();
-      this.controls.target.copy(planet.position);
-      this.controls.update();
+      this.camera.lookAt(this.focussedPlanet.object.position);
+      this.controls.target.copy(this.focussedPlanet.object.position);
+      this.controls.enabled = false;
+      this.canvas.style.pointerEvents = "none";
     }
   };
 
@@ -246,10 +256,11 @@ export default class SolarSystem {
     const delta = this.clock.getDelta();
     const elapsedTime = this.clock.elapsedTime;
 
+    this.goToPlanet();
     this.controls.update();
 
     this.planets.forEach((planet) => {
-      planet.animate(elapsedTime);
+      planet.animate(elapsedTime, delta);
     });
 
     this.renderer.render(this.scene, this.camera);

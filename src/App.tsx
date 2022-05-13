@@ -54,7 +54,9 @@ export default class App extends Component<any, IAppState> {
                   <PlanetListItem
                     key={planetName}
                     planetName={planetName}
-                    handleClick={() => this.state.solarSystem?.goTo(planetName)}
+                    handleClick={() =>
+                      this.state.solarSystem?.focusPlanet(planetName)
+                    }
                     handleMouseEnter={() =>
                       this.state.solarSystem?.setOrbitActive(planetName)
                     }

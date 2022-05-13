@@ -1,13 +1,16 @@
 import * as THREE from "three";
+import { normalize } from "../helpers/normalize";
 import Orbit from "./Orbit";
 
 export interface IPlanetProps {
   distanceFromSun: number;
   radius: number;
   orbitalVelocity: number;
+  rotationPeriod: number;
 }
 
 export default class Planet {
+  public rotationSpeed: number;
   public name: string;
   public props: IPlanetProps;
   public orbit: Orbit;
@@ -34,11 +37,15 @@ export default class Planet {
     this.object.name = planetName;
 
     this.object.position.copy(this.orbit.curve.getPoint(0));
+
+    this.rotationSpeed = 1 / this.props.rotationPeriod;
   }
 
-  public animate = (elapsedTime: number) => {
-    const moveFactor = ((elapsedTime / 100) * this.props.orbitalVelocity) % 1;
+  public animate = (elapsedTime: number, delta: number) => {
+    const moveFactor = ((elapsedTime / 500) * this.props.orbitalVelocity) % 1;
     this.object.position.copy(this.orbit.curve.getPoint(moveFactor));
+    const rotateFactor = delta * this.rotationSpeed * 10;
+    this.object.rotateY(rotateFactor);
   };
 
   public dispose = () => {
