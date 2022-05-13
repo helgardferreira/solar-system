@@ -7,6 +7,7 @@ export default class SolarSystem {
   private canvas: HTMLCanvasElement;
   private scene: THREE.Scene;
   private camera: THREE.PerspectiveCamera;
+  private clock: THREE.Clock;
   private controls: OrbitControls;
   private renderer: THREE.WebGLRenderer;
   private ambientLight: THREE.AmbientLight;
@@ -117,6 +118,8 @@ export default class SolarSystem {
 
     this.planetGroup = new THREE.Group();
     this.orbitGroup = new THREE.Group();
+
+    this.clock = new THREE.Clock();
 
     this.addEventListeners();
     this.initScene();
@@ -232,7 +235,15 @@ export default class SolarSystem {
   }
 
   private renderScene = () => {
+    const delta = this.clock.getDelta();
+    const elapsedTime = this.clock.elapsedTime;
+
     this.controls.update();
+
+    this.planets.forEach((planet) => {
+      planet.animate(elapsedTime);
+    });
+
     this.renderer.render(this.scene, this.camera);
     requestAnimationFrame(this.renderScene);
   };

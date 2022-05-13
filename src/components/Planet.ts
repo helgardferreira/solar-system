@@ -27,8 +27,13 @@ export default class Planet {
     this.object = new THREE.Mesh(this.geometry, this.material);
     this.object.name = planetName;
 
-    this.object.position.copy(orbit.curve.getPoint(0));
+    this.object.position.copy(this.orbit.curve.getPoint(0));
   }
+
+  public animate = (elapsedTime: number) => {
+    const moveFactor = elapsedTime % 1;
+    this.object.position.copy(this.orbit.curve.getPoint(moveFactor));
+  };
 
   public dispose = () => {
     this.material.dispose();
