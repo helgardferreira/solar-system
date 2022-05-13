@@ -104,6 +104,7 @@ export default class SolarSystem {
     this.renderer = new THREE.WebGLRenderer({
       antialias: true,
       canvas: this.canvas,
+      logarithmicDepthBuffer: true,
     });
 
     this.controls = new OrbitControls(this.camera, this.canvas);
