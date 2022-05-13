@@ -10,11 +10,15 @@ export default class App extends Component {
     this.canvasRef = createRef<HTMLCanvasElement>();
   }
 
-  componentDidMount() {
+  // Using a singleton here to prevent scene from being instantiating
+  // multiple times - this is especially important due to React 18
+  // causing multiple calls for componentDidMount and useEffect during
+  // development
+  componentDidMount = () => {
     if (this.canvasRef.current) {
-      this.solarSystem = new SolarSystem(this.canvasRef.current);
+      this.solarSystem = SolarSystem.create(this.canvasRef.current);
     }
-  }
+  };
 
   render(): ReactNode {
     return <canvas ref={this.canvasRef} />;

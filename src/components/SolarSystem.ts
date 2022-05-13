@@ -1,12 +1,25 @@
 import * as THREE from "three";
 
 export default class SolarSystem {
-  canvas: HTMLCanvasElement;
-  scene: THREE.Scene;
-  camera: THREE.PerspectiveCamera;
-  renderer: THREE.WebGLRenderer;
+  private canvas: HTMLCanvasElement;
+  private scene: THREE.Scene;
+  private camera: THREE.PerspectiveCamera;
+  private renderer: THREE.WebGLRenderer;
+  private static isInstantiated: boolean = false;
+
+  // Using a singleton here to prevent scene from being instantiating
+  // multiple times - this is especially important due to React 18
+  // causing multiple calls for componentDidMount and useEffect during
+  // development
+  static create = (canvas: HTMLCanvasElement) => {
+    if (!this.isInstantiated) {
+      this.isInstantiated = true;
+      return new SolarSystem(canvas);
+    }
+  };
 
   constructor(canvas: HTMLCanvasElement) {
+    console.log("instantiating!");
     this.canvas = canvas;
 
     this.scene = new THREE.Scene();
@@ -23,11 +36,13 @@ export default class SolarSystem {
       canvas: this.canvas,
     });
     this.renderer.setSize(window.innerWidth, window.innerHeight);
+    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
+    this.addEventListeners();
     this.initScene();
   }
 
-  initScene = () => {
+  private initScene = () => {
     const planet = new THREE.Mesh(
       new THREE.SphereGeometry(1, 100, 100),
       new THREE.MeshBasicMaterial({ color: 0xff0000 }),
@@ -37,8 +52,30 @@ export default class SolarSystem {
     this.renderScene();
   };
 
-  renderScene = () => {
+  private handleResize = () => {
+    this.canvas.width = window.innerWidth;
+    this.canvas.height = window.innerHeight;
+
+    // Update camera
+    this.camera.aspect = window.innerWidth / window.innerHeight;
+    this.camera.updateProjectionMatrix();
+
+    // Update renderer
+    this.renderer.setSize(window.innerWidth, window.innerHeight);
+  };
+
+  private addEventListeners() {
+    window.addEventListener("resize", this.handleResize);
+  }
+
+  private renderScene = () => {
     this.renderer.render(this.scene, this.camera);
     requestAnimationFrame(this.renderScene);
+  };
+
+  public dispose = () => {
+    console.log("disposing!");
+    window.removeEventListener("resize", this.handleResize);
+    this.renderer.dispose();
   };
 }
