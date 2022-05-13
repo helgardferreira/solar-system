@@ -1,6 +1,7 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import Orbit from "./Orbit";
+import Planet from "./Planet";
 
 export default class SolarSystem {
   private canvas: HTMLCanvasElement;
@@ -97,27 +98,22 @@ export default class SolarSystem {
       const orbit = new Orbit(props.distanceFromSun, 90, planetName);
       this.orbitGroup.add(orbit.object);
 
-      const planetMaterial = new THREE.MeshStandardMaterial({
-        map: textures[planetName as keyof typeof textures],
-      });
-      planetMaterial.side = THREE.DoubleSide;
-
-      const planet = new THREE.Mesh(
-        new THREE.SphereGeometry(props.radius, 100, 100),
-        planetMaterial,
+      const planet = new Planet(
+        props,
+        planetName,
+        orbit,
+        textures[planetName as keyof typeof textures],
       );
-      planet.name = planetName;
 
-      planet.position.copy(orbit.curve.getPoint(0));
+      this.planetGroup.add(planet.object);
 
-      this.planetGroup.add(planet);
-
+      // TODO: replace with camera controls
       if (planetName === "mercury") {
         this.camera.position
-          .copy(planet.position)
+          .copy(planet.object.position)
           .add(new THREE.Vector3(0, props.radius * 4, 0));
-        this.camera.lookAt(planet.position);
-        this.controls.target.copy(planet.position);
+        this.camera.lookAt(planet.object.position);
+        this.controls.target.copy(planet.object.position);
         this.controls.update();
       }
     });
