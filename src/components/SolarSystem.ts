@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import Orbit from "./Orbit";
 
 export default class SolarSystem {
   private canvas: HTMLCanvasElement;
@@ -47,6 +48,8 @@ export default class SolarSystem {
       new THREE.SphereGeometry(1, 100, 100),
       new THREE.MeshBasicMaterial({ color: 0xff0000 }),
     );
+    const orbit = new Orbit(3, 90, "mercury");
+    this.scene.add(orbit.object);
     this.scene.add(planet);
 
     this.renderScene();
