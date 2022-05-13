@@ -22,56 +22,56 @@ export default class SolarSystem {
       "mercury",
       {
         distanceFromSun: 58000,
-        radius: 2.44,
+        radius: 2.44 * 3000,
       },
     ],
     [
       "venus",
       {
         distanceFromSun: 108200,
-        radius: 6.052,
+        radius: 6.052 * 3000,
       },
     ],
     [
       "earth",
       {
         distanceFromSun: 149600,
-        radius: 6.378,
+        radius: 6.378 * 3000,
       },
     ],
     [
       "mars",
       {
         distanceFromSun: 228000,
-        radius: 3.396,
+        radius: 3.396 * 3000,
       },
     ],
     [
       "jupiter",
       {
         distanceFromSun: 778500,
-        radius: 71.492,
+        radius: 71.492 * 3000,
       },
     ],
     [
       "saturn",
       {
         distanceFromSun: 1432000,
-        radius: 60.268,
+        radius: 60.268 * 3000,
       },
     ],
     [
       "uranus",
       {
         distanceFromSun: 2867000,
-        radius: 25.559,
+        radius: 25.559 * 3000,
       },
     ],
     [
       "neptune",
       {
         distanceFromSun: 4515000,
-        radius: 24.764,
+        radius: 24.764 * 3000,
       },
     ],
   ]);
@@ -180,15 +180,10 @@ export default class SolarSystem {
     );
 
     if (planet) {
+      const offset = (this.planetMap.get(planetName)?.radius ?? 1) * 5;
       this.camera.position
         .copy(planet.position)
-        .add(
-          new THREE.Vector3(
-            (this.planetMap.get(planetName)?.radius ?? 1) * 5,
-            0,
-            0,
-          ),
-        );
+        .add(new THREE.Vector3(offset, offset, offset));
       this.camera.lookAt(planet.position);
       this.camera.updateProjectionMatrix();
       this.controls.target.copy(planet.position);
