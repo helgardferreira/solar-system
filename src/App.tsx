@@ -48,6 +48,7 @@ export default class App extends Component<any, IAppState> {
           left={10}
         >
           <List color="white">
+            <li onClick={() => this.state.solarSystem?.unfocus()}>Back</li>
             {this.state.solarSystem &&
               Array.from(this.state.solarSystem.planetMap.keys()).map(
                 (planetName) => (

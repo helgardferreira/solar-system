@@ -1,4 +1,5 @@
 import { FC } from "react";
+import capitalize from "../helpers/capitalize";
 
 interface IProps {
   planetName: string;
@@ -8,14 +9,19 @@ interface IProps {
 }
 
 const PlanetListItem: FC<IProps> = (props) => {
-  const { planetName, handleClick: onClick, handleMouseEnter, handleMouseLeave } = props;
+  const {
+    planetName,
+    handleClick: onClick,
+    handleMouseEnter,
+    handleMouseLeave,
+  } = props;
   return (
     <li
       onClick={onClick}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
-      {planetName}
+      {capitalize(planetName)}
     </li>
   );
 };

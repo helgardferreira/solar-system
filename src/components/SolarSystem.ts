@@ -200,6 +200,16 @@ export default class SolarSystem {
     this.focussedPlanet = planet;
   }
 
+  public unfocus() {
+    this.focussedPlanet = undefined;
+
+    this.camera.position.set(0, 8_000_000, 8_000_000);
+    this.camera.lookAt(0, 0, 0);
+    this.controls.target.set(0, 0, 0);
+    this.controls.enabled = true;
+    this.canvas.style.pointerEvents = "auto";
+  }
+
   private goToPlanet = () => {
     if (this.focussedPlanet) {
       const offset = (this.focussedPlanet.props.radius ?? 1) * 5;

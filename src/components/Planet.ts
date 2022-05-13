@@ -1,5 +1,4 @@
 import * as THREE from "three";
-import { normalize } from "../helpers/normalize";
 import Orbit from "./Orbit";
 
 export interface IPlanetProps {
