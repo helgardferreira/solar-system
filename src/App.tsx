@@ -3,41 +3,20 @@ import { Component, createRef, ReactNode } from "react";
 import Box from "./components/Box";
 import List from "./components/List";
 import PlanetListItem from "./components/PlanetListItem";
-import Planet, { IPlanetProps } from "./components/Planet";
+import { IPlanetProps } from "./components/Planet";
 import solarSystem from "./components/SolarSystem";
+import { planetStore } from "./stores/PlanetStore";
+import { observer } from "mobx-react";
 
-interface INasaImagesPayload {
-  collection: {
-    href: string;
-    items: {
-      data: any;
-      href: string;
-      links: {
-        href: string;
-        rel: string;
-        render: string;
-      }[];
-    }[];
-  };
-}
-
-interface IAppState {
-  focussedPlanet?: Planet;
-  planetImages: Map<string, string[]>;
-}
-
-export default class App extends Component<any, IAppState> {
+class App extends Component<any> {
   containerRef: React.RefObject<HTMLDivElement>;
 
   constructor(props: any) {
     super(props);
     this.containerRef = createRef<HTMLDivElement>();
-
-    this.state = {
-      planetImages: new Map(),
-    };
   }
 
+  // Could be handled inside of a useEffect of a function component
   componentDidMount = () => {
     if (this.containerRef.current) {
       this.containerRef.current.appendChild(solarSystem.canvas);
@@ -50,40 +29,16 @@ export default class App extends Component<any, IAppState> {
     }
   };
 
+  // Could be invoked directly within a function component
   handleFocusPlanet = (planetName: string) => {
-    this.setState({
-      focussedPlanet: solarSystem.focusPlanet(planetName),
-    });
-    this.fetchPlanetImages(planetName);
+    planetStore.focusPlanet(planetName);
   };
 
   handleUnFocusPlanet = () => {
-    solarSystem.unFocus();
-    this.setState({ focussedPlanet: undefined });
+    planetStore.unFocus();
   };
 
-  fetchPlanetImages = async (planetName: string) => {
-    if (!this.state.planetImages.get(planetName)) {
-      const data: INasaImagesPayload = await (
-        await fetch(
-          `https://images-api.nasa.gov/search?q=${planetName}&media_type=image`
-        )
-      ).json();
-
-      const urls = data.collection.items
-        .slice(0, 10)
-        .map((item) => item.links[0].href);
-
-      this.setState({
-        planetImages: new Map([
-          ...this.state.planetImages.entries(),
-          [planetName, urls],
-        ]),
-      });
-    }
-  };
-
-  render = (): ReactNode => {
+  render() {
     return (
       <Box position="relative" ref={this.containerRef}>
         <Box position="absolute" top={10} left={10}>
@@ -95,24 +50,24 @@ export default class App extends Component<any, IAppState> {
           >
             <List color="#ffffff">
               <li onClick={this.handleUnFocusPlanet}>Back</li>
-              {Array.from(solarSystem.planetMap.keys()).map((planetName) => (
+              {Array.from(planetStore.planetMap.keys()).map((planetName) => (
                 <PlanetListItem
                   key={planetName}
-                  isActive={planetName === this.state.focussedPlanet?.name}
+                  isActive={planetName === planetStore.focussedPlanet?.name}
                   planetName={planetName}
                   handleClick={() => this.handleFocusPlanet(planetName)}
                   handleMouseEnter={() =>
-                    solarSystem.setOrbitActive(planetName)
+                    planetStore.setOrbitActive(planetName)
                   }
                   handleMouseLeave={() =>
-                    solarSystem.setOrbitInactive(planetName)
+                    planetStore.setOrbitInactive(planetName)
                   }
                 />
               ))}
             </List>
           </Box>
 
-          {this.state.focussedPlanet && (
+          {planetStore.focussedPlanet && (
             <Box
               padding="12px 32px 12px 12px"
               backgroundColor="#1B262C"
@@ -125,19 +80,21 @@ export default class App extends Component<any, IAppState> {
               <List color="#ffffff">
                 <li onClick={this.handleUnFocusPlanet}>Close</li>
 
-                {Object.keys(this.state.focussedPlanet.props).map((propKey) => (
-                  <li key={propKey}>
-                    {propKey}:{" "}
-                    {
-                      this.state.focussedPlanet?.props[
-                        propKey as keyof IPlanetProps
-                      ]
-                    }
-                  </li>
-                ))}
+                {Object.keys(planetStore.focussedPlanet.props).map(
+                  (propKey) => (
+                    <li key={propKey}>
+                      {propKey}:{" "}
+                      {
+                        planetStore.focussedPlanet?.props[
+                          propKey as keyof IPlanetProps
+                        ]
+                      }
+                    </li>
+                  )
+                )}
 
-                {this.state.planetImages
-                  .get(this.state.focussedPlanet.name)
+                {planetStore.planetImages
+                  .get(planetStore.focussedPlanet.name)
                   ?.map((url) => (
                     <Box
                       key={url}
@@ -154,5 +111,7 @@ export default class App extends Component<any, IAppState> {
         </Box>
       </Box>
     );
-  };
+  }
 }
+
+export default observer(App);
