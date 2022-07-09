@@ -3,8 +3,8 @@ import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import Orbit from "./Orbit";
 import Planet, { IPlanetProps } from "./Planet";
 
-export default class SolarSystem {
-  private canvas: HTMLCanvasElement;
+class SolarSystem {
+  public canvas: HTMLCanvasElement;
   private scene: THREE.Scene;
   private camera: THREE.PerspectiveCamera;
   private clock: THREE.Clock;
@@ -94,22 +94,7 @@ export default class SolarSystem {
     ],
   ]);
 
-  // Using a singleton here to prevent scene from being instantiating
-  // multiple times - this is especially important due to React 18
-  // causing multiple calls for componentDidMount and useEffect during
-  // development
-  public static create = (canvas: HTMLCanvasElement) => {
-    if (!this.instance) {
-      this.instance = new SolarSystem(canvas);
-    }
-
-    return this.instance;
-  };
-
-  constructor(canvas: HTMLCanvasElement) {
-    console.log("instantiating!");
-    this.canvas = canvas;
-
+  constructor() {
     this.scene = new THREE.Scene();
     this.camera = new THREE.PerspectiveCamera(
       45,
@@ -121,9 +106,9 @@ export default class SolarSystem {
     this.camera.lookAt(0, 0, 0);
     this.renderer = new THREE.WebGLRenderer({
       antialias: true,
-      canvas: this.canvas,
       logarithmicDepthBuffer: true,
     });
+    this.canvas = this.renderer.domElement;
 
     this.controls = new OrbitControls(this.camera, this.canvas);
 
@@ -284,3 +269,7 @@ export default class SolarSystem {
     this.renderer.dispose();
   };
 }
+
+const solarSystem = new SolarSystem();
+
+export default solarSystem;

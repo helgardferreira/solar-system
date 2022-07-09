@@ -1,10 +1,10 @@
 import { Component, createRef, ReactNode } from "react";
-import SolarSystem from "./components/SolarSystem";
 
 import Box from "./components/Box";
 import List from "./components/List";
 import PlanetListItem from "./components/PlanetListItem";
 import Planet, { IPlanetProps } from "./components/Planet";
+import solarSystem from "./components/SolarSystem";
 
 interface INasaImagesPayload {
   collection: {
@@ -22,45 +22,43 @@ interface INasaImagesPayload {
 }
 
 interface IAppState {
-  solarSystem?: SolarSystem;
   focussedPlanet?: Planet;
   planetImages: Map<string, string[]>;
 }
 
 export default class App extends Component<any, IAppState> {
-  canvasRef: React.RefObject<HTMLCanvasElement>;
+  containerRef: React.RefObject<HTMLDivElement>;
 
   constructor(props: any) {
     super(props);
-    this.canvasRef = createRef<HTMLCanvasElement>();
+    this.containerRef = createRef<HTMLDivElement>();
 
     this.state = {
       planetImages: new Map(),
     };
   }
 
-  // Using a singleton here to prevent scene from being instantiating
-  // multiple times - this is especially important due to React 18
-  // causing multiple calls for componentDidMount and useEffect during
-  // development
   componentDidMount = () => {
-    if (this.canvasRef.current) {
-      const solarSystem = SolarSystem.create(this.canvasRef.current);
-      this.setState({
-        solarSystem,
-      });
+    if (this.containerRef.current) {
+      this.containerRef.current.appendChild(solarSystem.canvas);
     }
   };
 
+  componentWillUnmount = () => {
+    if (this.containerRef.current) {
+      this.containerRef.current.removeChild(solarSystem.canvas);
+    }
+  }
+
   handleFocusPlanet = (planetName: string) => {
     this.setState({
-      focussedPlanet: this.state.solarSystem?.focusPlanet(planetName),
+      focussedPlanet: solarSystem.focusPlanet(planetName),
     });
     this.fetchPlanetImages(planetName);
   };
 
   handleUnFocusPlanet = () => {
-    this.state.solarSystem?.unFocus();
+    solarSystem.unFocus();
     this.setState({ focussedPlanet: undefined });
   };
 
@@ -87,7 +85,7 @@ export default class App extends Component<any, IAppState> {
 
   render = (): ReactNode => {
     return (
-      <Box position="relative">
+      <Box position="relative" ref={this.containerRef}>
         <Box position="absolute" top={10} left={10}>
           <Box
             padding={12}
@@ -97,8 +95,7 @@ export default class App extends Component<any, IAppState> {
           >
             <List color="#ffffff">
               <li onClick={this.handleUnFocusPlanet}>Back</li>
-              {this.state.solarSystem &&
-                Array.from(this.state.solarSystem.planetMap.keys()).map(
+              {Array.from(solarSystem.planetMap.keys()).map(
                   (planetName) => (
                     <PlanetListItem
                       key={planetName}
@@ -106,10 +103,10 @@ export default class App extends Component<any, IAppState> {
                       planetName={planetName}
                       handleClick={() => this.handleFocusPlanet(planetName)}
                       handleMouseEnter={() =>
-                        this.state.solarSystem?.setOrbitActive(planetName)
+                        solarSystem.setOrbitActive(planetName)
                       }
                       handleMouseLeave={() =>
-                        this.state.solarSystem?.setOrbitInactive(planetName)
+                        solarSystem.setOrbitInactive(planetName)
                       }
                     />
                   ),
@@ -144,7 +141,12 @@ export default class App extends Component<any, IAppState> {
                 {this.state.planetImages
                   .get(this.state.focussedPlanet.name)
                   ?.map((url) => (
-                    <Box borderRadius={4} width={400} overflow="hidden">
+                    <Box
+                      key={url}
+                      borderRadius={4}
+                      width={400}
+                      overflow="hidden"
+                    >
                       <img width={400} key={url} src={url} alt="" />
                     </Box>
                   ))}
@@ -152,7 +154,6 @@ export default class App extends Component<any, IAppState> {
             </Box>
           )}
         </Box>
-        <canvas ref={this.canvasRef} />
       </Box>
     );
   };
