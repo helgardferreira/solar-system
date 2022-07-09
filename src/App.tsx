@@ -48,7 +48,7 @@ export default class App extends Component<any, IAppState> {
     if (this.containerRef.current) {
       this.containerRef.current.removeChild(solarSystem.canvas);
     }
-  }
+  };
 
   handleFocusPlanet = (planetName: string) => {
     this.setState({
@@ -66,7 +66,7 @@ export default class App extends Component<any, IAppState> {
     if (!this.state.planetImages.get(planetName)) {
       const data: INasaImagesPayload = await (
         await fetch(
-          `https://images-api.nasa.gov/search?q=${planetName}&media_type=image`,
+          `https://images-api.nasa.gov/search?q=${planetName}&media_type=image`
         )
       ).json();
 
@@ -95,22 +95,20 @@ export default class App extends Component<any, IAppState> {
           >
             <List color="#ffffff">
               <li onClick={this.handleUnFocusPlanet}>Back</li>
-              {Array.from(solarSystem.planetMap.keys()).map(
-                  (planetName) => (
-                    <PlanetListItem
-                      key={planetName}
-                      isActive={planetName === this.state.focussedPlanet?.name}
-                      planetName={planetName}
-                      handleClick={() => this.handleFocusPlanet(planetName)}
-                      handleMouseEnter={() =>
-                        solarSystem.setOrbitActive(planetName)
-                      }
-                      handleMouseLeave={() =>
-                        solarSystem.setOrbitInactive(planetName)
-                      }
-                    />
-                  ),
-                )}
+              {Array.from(solarSystem.planetMap.keys()).map((planetName) => (
+                <PlanetListItem
+                  key={planetName}
+                  isActive={planetName === this.state.focussedPlanet?.name}
+                  planetName={planetName}
+                  handleClick={() => this.handleFocusPlanet(planetName)}
+                  handleMouseEnter={() =>
+                    solarSystem.setOrbitActive(planetName)
+                  }
+                  handleMouseLeave={() =>
+                    solarSystem.setOrbitInactive(planetName)
+                  }
+                />
+              ))}
             </List>
           </Box>
 

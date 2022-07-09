@@ -100,7 +100,7 @@ class SolarSystem {
       45,
       window.innerWidth / window.innerHeight,
       0.5,
-      5_000_000_000,
+      5_000_000_000
     );
     this.camera.position.set(0, 8_000_000, 8_000_000);
     this.camera.lookAt(0, 0, 0);
@@ -132,34 +132,28 @@ class SolarSystem {
 
     return {
       mercury: textureLoader.load(
-        await import("../textures/mercury.jpeg").then(
-          ({ default: url }) => url,
-        ),
+        await import("../textures/mercury.jpeg").then(({ default: url }) => url)
       ),
       venus: textureLoader.load(
-        await import("../textures/venus.jpeg").then(({ default: url }) => url),
+        await import("../textures/venus.jpeg").then(({ default: url }) => url)
       ),
       earth: textureLoader.load(
-        await import("../textures/earth.jpeg").then(({ default: url }) => url),
+        await import("../textures/earth.jpeg").then(({ default: url }) => url)
       ),
       mars: textureLoader.load(
-        await import("../textures/mars.jpeg").then(({ default: url }) => url),
+        await import("../textures/mars.jpeg").then(({ default: url }) => url)
       ),
       jupiter: textureLoader.load(
-        await import("../textures/jupiter.jpeg").then(
-          ({ default: url }) => url,
-        ),
+        await import("../textures/jupiter.jpeg").then(({ default: url }) => url)
       ),
       saturn: textureLoader.load(
-        await import("../textures/saturn.jpeg").then(({ default: url }) => url),
+        await import("../textures/saturn.jpeg").then(({ default: url }) => url)
       ),
       uranus: textureLoader.load(
-        await import("../textures/uranus.jpeg").then(({ default: url }) => url),
+        await import("../textures/uranus.jpeg").then(({ default: url }) => url)
       ),
       neptune: textureLoader.load(
-        await import("../textures/neptune.jpeg").then(
-          ({ default: url }) => url,
-        ),
+        await import("../textures/neptune.jpeg").then(({ default: url }) => url)
       ),
     };
   };
@@ -219,7 +213,7 @@ class SolarSystem {
         props,
         planetName,
         orbit,
-        textures[planetName as keyof typeof textures],
+        textures[planetName as keyof typeof textures]
       );
 
       this.planets.push(planet);
