@@ -8,12 +8,11 @@ export interface IPlanetProps {
   rotationPeriod: number;
 }
 
-export default class Planet {
+export default class Planet extends THREE.Group {
   public rotationSpeed: number;
   public name: string;
   public props: IPlanetProps;
   public orbit: Orbit;
-  public object: THREE.Mesh<THREE.SphereGeometry, THREE.MeshStandardMaterial>;
   private material: THREE.MeshStandardMaterial;
   private geometry: THREE.SphereGeometry;
 
@@ -21,8 +20,9 @@ export default class Planet {
     props: IPlanetProps,
     planetName: string,
     orbit: Orbit,
-    texture: THREE.Texture,
+    texture: THREE.Texture
   ) {
+    super();
     this.name = planetName;
     this.props = props;
     this.orbit = orbit;
@@ -32,19 +32,18 @@ export default class Planet {
     });
     this.material.side = THREE.DoubleSide;
 
-    this.object = new THREE.Mesh(this.geometry, this.material);
-    this.object.name = planetName;
+    this.add(new THREE.Mesh(this.geometry, this.material));
 
-    this.object.position.copy(this.orbit.curve.getPoint(0));
+    this.position.copy(this.orbit.curve.getPoint(0));
 
     this.rotationSpeed = 1 / this.props.rotationPeriod;
   }
 
   public animate = (elapsedTime: number, delta: number) => {
     const moveFactor = ((elapsedTime / 500) * this.props.orbitalVelocity) % 1;
-    this.object.position.copy(this.orbit.curve.getPoint(moveFactor));
+    this.position.copy(this.orbit.curve.getPoint(moveFactor));
     const rotateFactor = delta * this.rotationSpeed * 10;
-    this.object.rotateY(rotateFactor);
+    this.rotateY(rotateFactor);
   };
 
   public dispose = () => {

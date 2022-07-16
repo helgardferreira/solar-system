@@ -1,5 +1,7 @@
+import { autorun, IReactionDisposer } from "mobx";
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
+import { planetStore } from "../stores/PlanetStore";
 import Orbit from "./Orbit";
 import Planet, { IPlanetProps } from "./Planet";
 
@@ -13,86 +15,13 @@ class SolarSystem {
   private ambientLight: THREE.AmbientLight;
   private planetGroup: THREE.Group;
   private orbitGroup: THREE.Group;
-  private planets: Planet[] = [];
   private focussedPlanet?: Planet;
 
-  private static instance: SolarSystem;
+  private disposePlanetEffect: IReactionDisposer | undefined;
 
-  // Unit of measurement is Megameters
-  public planetMap = new Map<string, IPlanetProps>([
-    [
-      "mercury",
-      {
-        distanceFromSun: 58000,
-        radius: 2.44 * 3000,
-        orbitalVelocity: 47.4,
-        rotationPeriod: 1407.6,
-      },
-    ],
-    [
-      "venus",
-      {
-        distanceFromSun: 108200,
-        radius: 6.052 * 3000,
-        orbitalVelocity: 35.0,
-        rotationPeriod: -5832.5,
-      },
-    ],
-    [
-      "earth",
-      {
-        distanceFromSun: 149600,
-        radius: 6.378 * 3000,
-        orbitalVelocity: 29.8,
-        rotationPeriod: 23.9,
-      },
-    ],
-    [
-      "mars",
-      {
-        distanceFromSun: 228000,
-        radius: 3.396 * 3000,
-        orbitalVelocity: 24.1,
-        rotationPeriod: 24.6,
-      },
-    ],
-    [
-      "jupiter",
-      {
-        distanceFromSun: 778500,
-        radius: 71.492 * 3000,
-        orbitalVelocity: 13.1,
-        rotationPeriod: 9.9,
-      },
-    ],
-    [
-      "saturn",
-      {
-        distanceFromSun: 1432000,
-        radius: 60.268 * 3000,
-        orbitalVelocity: 9.7,
-        rotationPeriod: 10.7,
-      },
-    ],
-    [
-      "uranus",
-      {
-        distanceFromSun: 2867000,
-        radius: 25.559 * 3000,
-        orbitalVelocity: 6.8,
-        rotationPeriod: -17.2,
-      },
-    ],
-    [
-      "neptune",
-      {
-        distanceFromSun: 4515000,
-        radius: 24.764 * 3000,
-        orbitalVelocity: 5.4,
-        rotationPeriod: 16.1,
-      },
-    ],
-  ]);
+  private get planets(): Planet[] {
+    return this.planetGroup.children as Planet[];
+  }
 
   constructor() {
     this.scene = new THREE.Scene();
@@ -194,30 +123,36 @@ class SolarSystem {
     if (this.focussedPlanet) {
       const offset = (this.focussedPlanet.props.radius ?? 1) * 5;
       this.camera.position
-        .copy(this.focussedPlanet.object.position)
+        .copy(this.focussedPlanet.position)
         .add(new THREE.Vector3(offset, offset, offset));
-      this.camera.lookAt(this.focussedPlanet.object.position);
-      this.controls.target.copy(this.focussedPlanet.object.position);
+      this.camera.lookAt(this.focussedPlanet.position);
+      this.controls.target.copy(this.focussedPlanet.position);
       this.controls.enabled = false;
       this.canvas.style.pointerEvents = "none";
     }
   };
 
   private initScene = async () => {
+    console.log("init scene!");
     const textures = await this.loadTextures();
-    this.planetMap.forEach((props, planetName) => {
-      const orbit = new Orbit(props.distanceFromSun, 90, planetName);
-      this.orbitGroup.add(orbit.object);
 
-      const planet = new Planet(
-        props,
-        planetName,
-        orbit,
-        textures[planetName as keyof typeof textures]
-      );
+    // If a new value is added to planetMap - add a new planet to the scene
+    // N.B. currently planetMap is not deeply observable
+    // TODO: only add new planets / dispose and replace existing planets
+    this.disposePlanetEffect = autorun(() => {
+      planetStore.planetMap.forEach((props, planetName) => {
+        const orbit = new Orbit(props.distanceFromSun, 90, planetName);
+        this.orbitGroup.add(orbit);
 
-      this.planets.push(planet);
-      this.planetGroup.add(planet.object);
+        const planet = new Planet(
+          props,
+          planetName,
+          orbit,
+          textures[planetName as keyof typeof textures]
+        );
+
+        this.planetGroup.add(planet);
+      });
     });
 
     this.scene.add(this.planetGroup);
@@ -260,6 +195,7 @@ class SolarSystem {
   public dispose = () => {
     console.log("disposing!");
     window.removeEventListener("resize", this.handleResize);
+    this.disposePlanetEffect && this.disposePlanetEffect();
     this.renderer.dispose();
   };
 }
